@@ -10,7 +10,7 @@ visual check is fast rather than tedious.
 Run: python3 verify_aois.py
 """
 
-from shapely.geometry import box
+from shapely.geometry import box, Point
 from itertools import combinations
 import sys
 import os
@@ -80,9 +80,32 @@ def main():
         all_ok = False
         print(f"[FAIL] {OOD_HOLDOUT_AOI} is not correctly flagged as the OOD holdout.")
 
-    # 4. Print center coords + Google Maps link for manual visual verification
-    # THIS STEP IS MANDATORY -- a human must click each link and confirm the
-    # anchor town/landmark actually falls inside the box on a real map.
+    # 4. Anchor-point containment checks (where anchor_point is provided)
+    print("\n--- Anchor-point containment checks ---")
+    any_anchor_fail = False
+    for name, spec in AOIS.items():
+        if "anchor_point" not in spec:
+            print(f"[SKIP] {name}: no anchor_point recorded, manual map check still required.")
+            continue
+        lon, lat = spec["anchor_point"]
+        pt = Point(lon, lat)
+        geom = geoms[name]
+        if geom.contains(pt):
+            print(f"[ OK ] {name}: anchor_point ({lat:.4f}, {lon:.4f}) is inside its box.")
+        else:
+            any_anchor_fail = True
+            all_ok = False
+            print(f"[FAIL] {name}: anchor_point ({lat:.4f}, {lon:.4f}) is NOT inside its box "
+                  f"{spec['bbox']}.")
+    if not any_anchor_fail:
+        print("All recorded anchor points fall inside their assigned boxes.")
+
+    # 5. Print center coords + Google Maps link for manual visual verification
+    # THIS STEP IS STILL RECOMMENDED even with anchor_point checks passing --
+    # a single point being inside a box doesn't guarantee the box's overall
+    # extent/orientation makes sense (e.g. it could be inside but skewed
+    # entirely to one corner). Anchor-point checks catch gross placement
+    # errors; they don't replace a human sanity look at the full box.
     print("\n--- Manual visual verification links (REQUIRED, not optional) ---")
     for name, spec in AOIS.items():
         min_lon, min_lat, max_lon, max_lat = spec["bbox"]

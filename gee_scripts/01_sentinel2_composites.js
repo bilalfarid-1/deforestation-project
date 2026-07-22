@@ -30,12 +30,12 @@ var COMPOSITE_START_MD = '04-01';
 var COMPOSITE_END_MD = '05-31';
 
 var AOIS = {
-  'AOI_1_Margalla_Islamabad':      [72.95, 33.65, 73.20, 33.87],
+  'AOI_1_Margalla_Islamabad':      [73.00, 33.65, 73.20, 33.85],
   'AOI_2_Lower_Murree_Ghoragali':  [73.35, 33.82, 73.50, 33.93],
   'AOI_3_Potohar_Kahuta':          [73.28, 33.55, 73.50, 33.72],
   'AOI_4_AJK_Border_Foothills':    [73.55, 33.55, 73.80, 33.75],
-  'AOI_5_Upper_Jhelum_Kohala':     [73.36, 34.24, 73.55, 34.38],
-  'AOI_6_Haripur_Khanpur':         [72.98, 33.90, 73.18, 34.04],
+  'AOI_5_Upper_Jhelum_Kohala':     [73.48, 34.00, 73.66, 34.18],
+  'AOI_6_Haripur_Khanpur':         [72.78, 33.72, 72.98, 33.92],
   'AOI_7_Abbottabad_Havelian':     [73.10, 34.04, 73.28, 34.19],
   'AOI_8_Galyat':                  [73.30, 34.00, 73.48, 34.13]
 };

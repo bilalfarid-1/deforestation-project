@@ -55,35 +55,54 @@ CONSECUTIVE_PAIRS = [(y, y + 1) for y in YEARS[:-1]]  # 7 pairs
 AOIS = {
     "AOI_1_Margalla_Islamabad": {
         "anchor": "Islamabad / Margalla Hills",
-        "bbox": (72.95, 33.65, 73.20, 33.87),
+        "bbox": (73.00, 33.65, 73.20, 33.85),
+        "anchor_point": (73.06, 33.72),  # Margalla ridge, per Gemini geo-check
+        # Shrunk slightly from an earlier draft (was 72.95-73.20, 33.65-33.87)
+        # to make genuine non-overlapping room for AOI_6 (Khanpur), whose real
+        # anchor point sits very close to AOI_1's original western edge.
     },
     "AOI_2_Lower_Murree_Ghoragali": {
         "anchor": "Ghoragali / Lower Murree",
         "bbox": (73.35, 33.82, 73.50, 33.93),
+        "anchor_point": (73.36, 33.89),  # Ghora Gali, per Gemini geo-check
     },
     "AOI_3_Potohar_Kahuta": {
         "anchor": "Kahuta, Potohar Plateau",
         "bbox": (73.28, 33.55, 73.50, 33.72),
+        "anchor_point": (73.39, 33.59),  # Kahuta, per Gemini geo-check
     },
     "AOI_4_AJK_Border_Foothills": {
         "anchor": "AJK border foothills (near Kotli/Rawalakot approach)",
         "bbox": (73.55, 33.55, 73.80, 33.75),
+        "anchor_point": (73.61, 33.73),  # Azad Pattan crossing, per Gemini geo-check
     },
     "AOI_5_Upper_Jhelum_Kohala": {
         "anchor": "Kohala, Upper Jhelum",
-        "bbox": (73.36, 34.24, 73.55, 34.38),
+        "bbox": (73.48, 34.00, 73.66, 34.18),
+        "anchor_point": (73.50, 34.09),  # Kohala Bridge, per Gemini geo-check
+        # Corrected after Gemini geographic verification flagged the earlier
+        # box (73.36-73.55, 34.24-34.38) as ~17km too far north of real
+        # Kohala (~34.09N, 73.50E, at the Jhelum crossing into AJK).
     },
     "AOI_6_Haripur_Khanpur": {
         "anchor": "Khanpur, Haripur District",
-        "bbox": (72.98, 33.90, 73.18, 34.04),
+        "bbox": (72.78, 33.72, 72.98, 33.92),
+        "anchor_point": (72.94, 33.81),  # Khanpur Dam/town, per Gemini geo-check
+        # Corrected after Gemini geographic verification flagged the earlier
+        # box (72.98-73.18, 33.90-34.04) as ~11-12km northeast of real
+        # Khanpur (~33.81N, 72.94E, near Khanpur Dam/Lake).
     },
     "AOI_7_Abbottabad_Havelian": {
         "anchor": "Abbottabad / Havelian",
         "bbox": (73.10, 34.04, 73.28, 34.19),
+        "anchor_point": (73.16, 34.05),  # Havelian, per Gemini geo-check
+        # Note: Abbottabad proper (34.17, 73.22) per Gemini is also inside
+        # this box; Havelian used as the primary containment check anchor.
     },
     "AOI_8_Galyat": {
         "anchor": "Galyat (Nathia Gali / Ayubia belt)",
         "bbox": (73.30, 34.00, 73.48, 34.13),
+        "anchor_point": (73.38, 34.07),  # Nathia Gali, per Gemini geo-check
         # AOI_8 is the designated out-of-distribution (OOD) holdout.
         # It must NEVER appear in training, validation, or k-fold rotation.
         "ood_holdout": True,
