@@ -83,10 +83,40 @@ export const signUp = async (req: Request, res: Response): Promise<Response> => 
       `
     });
 
+    // Create user in User table
+    let newUser = await User.findOne({ where: { email: normalizedEmail } });
+    if (!newUser) {
+      newUser = await User.create({
+        name: name ? name.trim() : 'Analyst',
+        email: normalizedEmail,
+        password_hash: hashedPassword,
+        organization: organization ? organization.trim() : '',
+        role: 'Analyst',
+        is_verified: true
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: newUser.id,
+        email: newUser.email,
+        role: newUser.role
+      },
+      process.env.JWT_SECRET || 'greenguard-super-secret-key-2026',
+      { expiresIn: '7d' }
+    );
+
     return res.status(200).json({
       success: true,
-      message: 'Verification code sent to your email address.',
-      email: normalizedEmail
+      message: 'Account created successfully. Verification code also dispatched to your email.',
+      token,
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        organization: newUser.organization,
+        role: newUser.role
+      }
     });
   } catch (error: any) {
     console.error('[Auth API] SignUp Error:', error);
