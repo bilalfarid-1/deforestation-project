@@ -89,10 +89,10 @@ export const signUp = async (req: Request, res: Response): Promise<Response> => 
       newUser = await User.create({
         name: name ? name.trim() : 'Analyst',
         email: normalizedEmail,
-        password_hash: hashedPassword,
+        password: hashedPassword,
         organization: organization ? organization.trim() : '',
         role: 'Analyst',
-        is_verified: true
+        isVerified: true
       });
     }
 
@@ -148,34 +148,44 @@ export const verifyOTP = async (req: Request, res: Response): Promise<Response> 
       return res.status(400).json({ error: 'Verification code has expired. Please sign up again.' });
     }
 
-    // Create User
-    const newUser = await User.create({
-      name: pending.name,
-      email: pending.email,
-      password: pending.password_hash,
-      organization: pending.organization,
-      isVerified: true
-    });
+    // Create or update User
+    let user = await User.findOne({ where: { email: normalizedEmail } });
+    if (!user) {
+      user = await User.create({
+        name: pending.name,
+        email: pending.email,
+        password: pending.password_hash,
+        organization: pending.organization,
+        isVerified: true
+      });
+    } else {
+      user.isVerified = true;
+      await user.save();
+    }
 
     await PendingUser.destroy({ where: { email: normalizedEmail } });
 
-    // Issue JWT
     const token = jwt.sign(
-      { id: newUser.id, email: newUser.email, name: newUser.name },
-      process.env.JWT_SECRET || 'greenguard_secret_key',
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      },
+      process.env.JWT_SECRET || 'greenguard-super-secret-key-2026',
       { expiresIn: '7d' }
     );
 
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
       message: 'Account verified successfully.',
+      token,
       user: {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role
-      },
-      token
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        organization: user.organization,
+        role: user.role
+      }
     });
   } catch (error: any) {
     console.error('[Auth API] VerifyOTP Error:', error);
