@@ -1,6 +1,12 @@
+node_modules/
+dist/
+data/
+*.sqlite
+*.sqlite3
+*.log
+.env
+.DS_Store
 __pycache__/
 *.pyc
-.DS_Store
-*.tif
-*.tiff
-data/
+venv/
+.venv/
