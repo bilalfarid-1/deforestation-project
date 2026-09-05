@@ -176,5 +176,21 @@ npm run test:api
 
 ---
 
+## 📖 Detailed System Documentation
+For in-depth architectural diagrams, integration walkthroughs, and post-mortems on resolved integration bugs, see the [Comprehensive Integration Guide](INTEGRATION_GUIDE.md).
+
+---
+
+## 👥 Project Team & Contributions
+
+| Member | Focus Area | Technical Deliverables |
+| :--- | :--- | :--- |
+| **Bilal Farid** | Full-Stack Integration & Geospatial ML Engineering | • End-to-End Node.js/TypeScript REST API<br>• Real-time Esri satellite mosaic tile pipeline<br>• ML inference optimization & timeout resolution<br>• Frontend map drag, AOI framing, & visual drift bug fixes |
+| **Ayesha** | Deep Learning Model Training & Weights | • Trained Attention U-Net & U-Net++ neural networks<br>• Model weight optimization (`attn_unet_best.pth`, `unetpp_best.pth`) |
+| **Mahnoor** | ML Research & Training Pipeline | • Jupyter training notebooks, band preprocessing, and loss functions |
+| **Waniah** | Frontend Development & UI/UX | • React application architecture (`green-guard`)<br>• UI layout, report dashboards, and page navigation |
+
+---
+
 ## 🛡️ License
 MIT License. Built for environmental protection and sustainable forest management.

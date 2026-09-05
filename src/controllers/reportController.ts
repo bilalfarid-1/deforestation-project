@@ -96,7 +96,8 @@ function generateInProcessAnalysis(body: AnalyzeRequestBody): AnalysisResult {
 export const analyzeArea = async (req: Request, res: Response): Promise<void> => {
   const body: AnalyzeRequestBody = req.body || {};
   const scriptPath = path.resolve(process.cwd(), 'ml/inference_engine.py');
-  const pythonPath = process.env.PYTHON_PATH || 'python';
+  const rawPythonPath = process.env.PYTHON_PATH || 'python';
+  const pythonPath = rawPythonPath.startsWith('.') ? path.resolve(process.cwd(), rawPythonPath) : rawPythonPath;
 
   if (!fs.existsSync(scriptPath)) {
     console.warn('[Report API] ML script not found. Using in-process analysis engine.');
@@ -107,19 +108,23 @@ export const analyzeArea = async (req: Request, res: Response): Promise<void> =>
 
   try {
     const inputJson = JSON.stringify(body);
-    const pyProcess = spawn(pythonPath, [scriptPath, inputJson], {
+    const pyProcess = spawn(pythonPath, [scriptPath], {
       cwd: process.cwd()
     });
 
     let stdoutData = '';
     let stderrData = '';
 
+    // Pipe payload through stdin for maximum robustness on Windows
+    pyProcess.stdin.write(inputJson);
+    pyProcess.stdin.end();
+
     const timeout = setTimeout(() => {
       pyProcess.kill();
-      console.warn('[Report API] Python inference timeout (12s). Falling back to in-process analysis.');
+      console.warn('[Report API] Python inference timeout (90s). Falling back to in-process analysis.');
       const fallbackResult = generateInProcessAnalysis(body);
       res.status(200).json(fallbackResult);
-    }, 12000);
+    }, 90000);
 
     pyProcess.stdout.on('data', (data) => {
       stdoutData += data.toString();
@@ -135,9 +140,14 @@ export const analyzeArea = async (req: Request, res: Response): Promise<void> =>
 
       if (code === 0 && stdoutData.trim().length > 0) {
         try {
-          const jsonResult: AnalysisResult = JSON.parse(stdoutData.trim());
-          res.status(200).json(jsonResult);
-          return;
+          const firstBrace = stdoutData.indexOf('{');
+          const lastBrace = stdoutData.lastIndexOf('}');
+          if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            const cleanJson = stdoutData.substring(firstBrace, lastBrace + 1);
+            const jsonResult: AnalysisResult = JSON.parse(cleanJson);
+            res.status(200).json(jsonResult);
+            return;
+          }
         } catch (parseErr) {
           console.warn('[Report API] Failed to parse Python stdout. Falling back to in-process analysis.', parseErr);
         }
